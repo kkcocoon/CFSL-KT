@@ -25,12 +25,11 @@ parser.add_argument('--episodes', default=2000, type=int, help='(2000) Number of
 parser.add_argument("-f","--feature_dim",type = int, default = 256)
 parser.add_argument('--lr', '--learning_rate', default=0.001, type=float, help='(0.001) Important! Initial learning rate')
 
-#parser.add_argument('--data_path', default=r'E:\6.PythonPro\10.Group Experiment\datasets-EMAPorg', type=str, help='data path')
-# parser.add_argument('--data_path', default=r'/opt/data/private/data_HSI', type=str, help='data path')
-parser.add_argument('--data_path', default=r'G:\data_HSI', type=str, help='data path')
+# parser.add_argument('--data_path', default=r'/opt/data/', type=str, help='data path')
+parser.add_argument('--data_path', default=r'data/', type=str, help='data path') # !!!! 
 
 parser.add_argument('--components', default=None, type=int, help='dimensionality reduction')
-parser.add_argument('--dataset', default='IP_EMAP', type=str, help='dataset (options: IP_EMAP, SV_EMAP, PU_EMAP, IP, PU, SV)')
+parser.add_argument('--dataset', default='IP_EMAP', type=str, help='dataset (options: IP_EMAP, SV_EMAP, PU_EMAP)')
 parser.add_argument('--tr_percent', default=5, type=float, help='(5 or 0.05) Samples of train set')
 parser.add_argument('--tr_bsize', default=128, type=int, help='(128) Mini-batch train size')
 parser.add_argument('--te_bsize', default=128, type=int, help='(128) Mini-batch test size')
@@ -48,7 +47,6 @@ parser.add_argument('--loss_hard_margin', default=2.0, type=bool, help='Margin f
 parser.add_argument('--loss_domain_weight', default=0.01, type=float, help='loss_domain_weight')
 parser.add_argument('--loss_source_weight', default=1.0, type=float, help='loss_source_weight')
 
-parser.add_argument('--net', default='MyNetwork', type=str, help='(pRestNet, MyNetwork) Net model')
 parser.add_argument('--rand_state', default=1331, type=int, help='(None,123) Random seed')
 
 # Ensure the results for every random experiment are the same for the same random seed.
@@ -246,7 +244,7 @@ for episode in range(args.episodes):
               s_acc,
               tr_acc))
 
-   if (episode<100 and (episode+1)%10==0) or (episode+1)%50==0:
+   if (episode+1)%50==0:
 
       if args.use_val:
          print("Verifying ...")
@@ -282,26 +280,26 @@ feature_encoder.load_state_dict(checkpoint['state_dict'])
 preds,preds_mx,labels,feas = auxil.predict(test_loader, feature_encoder)
 classification, confusion, best_results = auxil.reports(preds,labels)
 
-fname = 'train/{}_{}_{}_{}'.format(args.net,args.dataset,args.tr_percent,args.rand_state)
-fname = fname + '_hardw_{}-domainw_{}-episode_{}'.format(args.loss_hard_weight,args.loss_domain_weight,best_episode+1)
+fname = '{}_{}_{}'.format(args.dataset,args.tr_percent,args.rand_state)
+#fname = fname + '_bestepisode_{}'.format(best_episode+1)
 
-gt = gt+1
-results_test = {'pred': preds, 'test_label': labels, 'idx': idx_te, 'idy': idy_te, 'gt':gt}
-fname = fname + '_{:.2f}'.format(best_results[0])
-np.savez(fname, results_test)
+#gt = gt+1
+#results_test = {'pred': preds, 'test_label': labels, 'idx': idx_te, 'idy': idy_te, 'gt':gt}
+#fname = fname + '_{:.2f}'.format(best_results[0])
+#np.savez(fname, results_test)
+#
+#
+#for ij in np.arange(0, len(preds)):
+#   x = int(idx_te[ij])
+#   y = int(idy_te[ij])
+#   gt[x, y] = preds[ij]+1
+#data = {
+#   'data': gt
+#}
+#sio.savemat(fname+'.mat', data)
 
-
-for ij in np.arange(0, len(preds)):
-   x = int(idx_te[ij])
-   y = int(idy_te[ij])
-   gt[x, y] = preds[ij]+1
-data = {
-   'data': gt
-}
-sio.savemat(fname+'.mat', data)
-
-sresult = '{:.2f} # {}-trtime_{}'.format(best_results[0], fname, duration_tr.seconds)
-file_handle = open('result_SemiDA.txt','a')
+sresult = '{:.2f} {:.2f} {:.2f} # {}-trtime_{}'.format(best_results[0],best_results[1],best_results[2], fname, duration_tr.seconds)
+file_handle = open('result.txt','a')
 file_handle.write('\n')
 file_handle.writelines(sresult)
 file_handle.close()

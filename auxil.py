@@ -22,12 +22,6 @@ def loadData(name, num_components=None, data_path=None, half=True):
    elif name == 'IP_EMAP':
       data = sio.loadmat(os.path.join(data_path, 'Indian_pines_corrected_EMAP.mat'))['indian_pines_corrected']
       labels = sio.loadmat(os.path.join(data_path, 'Indian_pines_gt.mat'))['indian_pines_gt']
-   elif name == 'IP9_EMAP':
-      data = sio.loadmat(os.path.join(data_path, 'indian_pines_corrected_EMAP.mat'))['indian_pines_corrected']
-      labels = sio.loadmat(os.path.join(data_path, 'indian9_gt.mat'))['gt']
-   elif name == 'IP9':
-      data = sio.loadmat(os.path.join(data_path, 'indian_pines_corrected.mat'))['indian_pines_corrected']
-      labels = sio.loadmat(os.path.join(data_path, 'indian9_gt.mat'))['gt']
    elif name == 'SV':
       data = sio.loadmat(os.path.join(data_path, 'salinas_corrected.mat'))['salinas_corrected']
       labels = sio.loadmat(os.path.join(data_path, 'salinas_gt.mat'))['salinas_gt']
@@ -40,9 +34,6 @@ def loadData(name, num_components=None, data_path=None, half=True):
    elif name == 'PU_EMAP':
       data = sio.loadmat(os.path.join(data_path, 'paviaU_EMAP.mat'))['paviaU']
       labels = sio.loadmat(os.path.join(data_path, 'paviaU_gt.mat'))['paviaU_gt']
-   elif name == 'KSC':
-      data = sio.loadmat(os.path.join(data_path, 'KSC.mat'))['KSC']
-      labels = sio.loadmat(os.path.join(data_path, 'KSC_gt.mat'))['KSC_gt']
    elif name == 'Chikusei_EMAP':
       data = sio.loadmat(os.path.join(data_path, 'Chikusei_EMAP.mat'))['chikusei']
       labels = sio.loadmat(os.path.join(data_path, 'Chikusei14_gt.mat'))['chikusei_gt']
@@ -60,12 +51,10 @@ def loadData(name, num_components=None, data_path=None, half=True):
       data = PCA(n_components=num_components).fit_transform(data)
       shapeor = np.array(shapeor)
       shapeor[-1] = num_components
-   #data = MinMaxScaler().fit_transform(data)  
    data = StandardScaler().fit_transform(data)  # X = (X-X_mean)/X_std
    data = data.reshape(shapeor)
    num_class = len(np.unique(labels)) - 1
    labels = labels.astype(np.uint16)
-   #print(labels.shape)
    return data, labels, num_class
 
 class HyperData(Dataset):
@@ -128,14 +117,6 @@ def load_hyper(args):
    return train_loader, test_loader, val_loader, numberofclass, bands, shape, idx_te, idy_te, gt
 
 
-
-#def load_hyper_all(args):
-#   data, labels, numclass = loadData(args.dataset, num_components=args.components)
-#   pixels,labels,idx,idy = createImageCubes(data, labels, patchsize=args.patchsize, removeZeroLabels=False,ridx=True)
-#   all_hyper = HyperData((np.transpose(pixels, (0, 3, 1, 2)).astype("float32"),labels))
-#   kwargs = {'num_workers': 0, 'pin_memory': True}
-#   all_loader = torch.utils.data.DataLoader(all_hyper, batch_size=args.tr_bsize, shuffle=False, drop_last=False,**kwargs)
-#   return all_loader
 
 # In[randomly select data]:
    
